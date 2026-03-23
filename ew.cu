@@ -247,13 +247,14 @@ class cuerda{
                     unsigned long i=thrust::get<1>(t);
 
                     #ifdef RANDOM123
-                    real ran = sqrtf(2*TEMP*dt_)*rng_normal(i,n,seed_);
+                    //real ran = sqrtf(2*TEMP*dt_)*rng_normal(i,n,seed_);
+                    real ran = sqrtf(TEMP/TAU)*rng_normal(i,n,seed_);
                     #else
                     curandStatePhilox4_32_10_t state;
                     curand_init(seed_, i, n, &state);
                     //real ran = sqrtf(2*TEMP*dt_)*curand_normal(&state);
                     //real ran = sqrtf(2*TEMP*dt_)*rng_normal(state);
-                    real ran = sqrtf(TEMP/TAU)*rng_normal(state);
+                    real ran = sqrtf(TEMP/TAU)*curand_normal(&state);
 
                     #endif
                    // thrust::get<0>(t) += -thrust::get<0>(t)*dt_/TAU + ran/TAU;
@@ -581,7 +582,7 @@ class cuerda{
                 #else
                 curandStatePhilox4_32_10_t state;
                 curand_init(seed_, i, 1, &state);
-                real ran = sqrt(2*TEMP)*rng_normal(state);
+                real ran = sqrt(2*TEMP)*curand_normal(&state);
                 #endif
                 raw_noise[i] = ran;
 
