@@ -248,13 +248,13 @@ class cuerda{
 
                     #ifdef RANDOM123
                     //real ran = sqrtf(2*TEMP*dt_)*rng_normal(i,n,seed_);
-                    real ran = sqrtf(TEMP/TAU)*rng_normal(i,n,seed_);
+                    real ran = sqrtf(2*TEMP/TAU)*rng_normal(i,n,seed_);
                     #else
                     curandStatePhilox4_32_10_t state;
                     curand_init(seed_, i, n, &state);
                     //real ran = sqrtf(2*TEMP*dt_)*curand_normal(&state);
                     //real ran = sqrtf(2*TEMP*dt_)*rng_normal(state);
-                    real ran = sqrtf(TEMP/TAU)*curand_normal(&state);
+                    real ran = sqrtf(2*TEMP/TAU)*curand_normal(&state);
 
                     #endif
                    // thrust::get<0>(t) += -thrust::get<0>(t)*dt_/TAU + ran/TAU;
@@ -563,12 +563,12 @@ class cuerda{
                 // correlated noise update 
                 #ifdef RANDOM123
                 //real ran = sqrt(2*TEMP*dt_)*rng_normal(i, n, seed_);
-                real ran = sqrt(TEMP*(1.-1./exp(2*dt_/TAU))/TAU)*rng_normal(i, n, seed_);
+                real ran = sqrt(2*TEMP*(1.-1./exp(2*dt_/TAU))/TAU)*rng_normal(i, n, seed_);
                 #else
                 curandStatePhilox4_32_10_t state;
                 curand_init(seed_, i, n, &state);
                 //real ran = sqrt(2*TEMP*dt_)*curand_normal(&state);
-                real ran = sqrt(TEMP*(1.-1./exp(2*dt_/TAU))/TAU)*curand_normal(&state);
+                real ran = sqrt(2*TEMP*(1.-1./exp(2*dt_/TAU))/TAU)*curand_normal(&state);
                 #endif
                 //real ran = 0.0;
                 //raw_noise[i] = -raw_noise[i]*dt_/TAU + ran/TAU;
@@ -578,7 +578,7 @@ class cuerda{
 
                 // correlated noise update 
                 #ifdef RANDOM123
-                real ran = sqrt(2*TEMP*dt_)*rng_normal(i, n, seed_);
+                real ran = sqrt(2*TEMP)*rng_normal(i, n, seed_);
                 #else
                 curandStatePhilox4_32_10_t state;
                 curand_init(seed_, i, 1, &state);
