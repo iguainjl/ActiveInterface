@@ -229,8 +229,10 @@ class cuerda{
         unsigned long L_ = L;
 
 		std::cout << "starting warming up noise" << std::endl; 
-        unsigned long twarm = (unsigned long )(5.*TAU/dt_); // number of warmup steps
-        for(unsigned long n=0;n<twarm;n++)
+         //unsigned long twarm = (unsigned long )(5.*TAU/dt_); // number of warmup steps
+         unsigned long twarm = (unsigned long )(1); // first noise
+
+   	 for(unsigned long n=0;n<twarm;n++)
         {
 			
             thrust::for_each(
@@ -250,10 +252,13 @@ class cuerda{
                     curandStatePhilox4_32_10_t state;
                     curand_init(seed_, i, n, &state);
                     //real ran = sqrtf(2*TEMP*dt_)*curand_normal(&state);
-                    real ran = sqrtf(2*TEMP*dt_)*rng_normal(state);
+                    //real ran = sqrtf(2*TEMP*dt_)*rng_normal(state);
+                    real ran = sqrtf(TEMP/TAU)*rng_normal(state);
+
                     #endif
-                    thrust::get<0>(t) += -thrust::get<0>(t)*dt_/TAU + ran/TAU;
-                } 
+                   // thrust::get<0>(t) += -thrust::get<0>(t)*dt_/TAU + ran/TAU;
+                    thrust::get<0>(t) =  ran;
+               } 
             );  
         }
 		std::cout << "noise ready" << std::endl; 
@@ -556,14 +561,17 @@ class cuerda{
 
                 // correlated noise update 
                 #ifdef RANDOM123
-                real ran = sqrt(2*TEMP*dt_)*rng_normal(i, n, seed_);
+                //real ran = sqrt(2*TEMP*dt_)*rng_normal(i, n, seed_);
+                real ran = sqrt(TEMP*(1.-1./exp(2*dt_/TAU))/TAU)*rng_normal(i, n, seed_);
                 #else
                 curandStatePhilox4_32_10_t state;
                 curand_init(seed_, i, n, &state);
-                real ran = sqrt(2*TEMP*dt_)*curand_normal(&state);
+                //real ran = sqrt(2*TEMP*dt_)*curand_normal(&state);
+                real ran = sqrt(TEMP*(1.-1./exp(2*dt_/TAU))/TAU)*curand_normal(&state);
                 #endif
                 //real ran = 0.0;
-                raw_noise[i] += -raw_noise[i]*dt_/TAU + ran/TAU;
+                //raw_noise[i] = -raw_noise[i]*dt_/TAU + ran/TAU;
+                raw_noise[i] = raw_noise[i]/exp(dt_/TAU) + ran;
 
 				#else
 
