@@ -224,7 +224,7 @@ class cuerda{
 
     // needed to reach steady state noise	
     void warmup_noise(){
-        real dt_ = dt;
+       // real dt_ = dt;
         unsigned long seed_ = seed;
         unsigned long L_ = L;
 
