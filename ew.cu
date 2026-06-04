@@ -379,7 +379,8 @@ class cuerda{
         thrust::transform_reduce(
             u.begin(),u.end(),
             [=] __device__ __host__ (real x){
-                return (x-cmu)*(x-cmu)*(x-cmu)/powf(sigma,3.);
+                //return (x-cmu)*(x-cmu)*(x-cmu)/powf(sigma,3.);
+ 		return (x-cmu)*(x-cmu)*(x-cmu)/(sigma*sigma*sigma);
             },
             real(0.f),
             thrust::plus<real>()
@@ -390,7 +391,9 @@ class cuerda{
         thrust::transform_reduce(
             u.begin(),u.end(),
             [=] __device__ __host__ (real x){
-                return (x-cmu)*(x-cmu)*(x-cmu)*(x-cmu)/powf(sigma,4.);
+                //return (x-cmu)*(x-cmu)*(x-cmu)*(x-cmu)/powf(sigma,4.);
+		return (x-cmu)*(x-cmu)*(x-cmu)*(x-cmu)/(sigma*sigma*sigma*sigma);
+
             },
             real(0.f),
             thrust::plus<real>()
@@ -592,7 +595,7 @@ class cuerda{
 
                 // modify element force
                 thrust::get<0>(t) = raw_noise[i];
-                
+/*                
                 #ifdef C2
         		thrust::get<0>(t) += C2*( powf(uright - raw_u[i],1.0) - powf(raw_u[i]-uleft,1.0) );	                
                 #endif
@@ -612,8 +615,53 @@ class cuerda{
         		#ifdef KPZ
                 thrust::get<0>(t) += 0.5*KPZ*powf((uright-uleft),2.0f);
         		#endif
-        		
-        		raw_dudx[i] = uright - raw_u[i];
+        		*/
+
+               const float d_right = uright - raw_u[i];
+               const float d_left  = raw_u[i] - uleft;
+
+
+	       	#ifdef C2
+		thrust::get<0>(t) += C2 * ( d_right - d_left );
+		#endif
+
+		#ifdef C4
+		thrust::get<0>(t) += C4 * ( (d_right * d_right * d_right) - (d_left * d_left * d_left) );
+		#endif
+
+
+		#ifdef C6
+		{
+		    const float r2 = d_right * d_right;
+		    const float l2 = d_left * d_left;
+		    thrust::get<0>(t) += C6 * ( (r2 * r2 * d_right) - (l2 * l2 * d_left) );
+		}
+		#endif
+
+		#ifdef C12
+		{
+		    const float r2 = d_right * d_right;
+		    const float r4 = r2 * r2;
+		    const float r8 = r4 * r4;
+		    const float r11 = r8 * r2 * d_right;
+
+		    const float l2 = d_left * d_left;
+		    const float l4 = l2 * l2;
+		    const float l8 = l4 * l4;
+		    const float l11 = l8 * l2 * d_left;
+
+		    thrust::get<0>(t) += C12 * ( r11 - l11 );
+		}
+		#endif
+
+		#ifdef KPZ
+		{
+		    const float d_kpz = uright - uleft;
+		    thrust::get<0>(t) += 0.5f * KPZ * (d_kpz * d_kpz);
+		}
+		#endif
+
+        	raw_dudx[i] = uright - raw_u[i];
             } 
         );
 
